@@ -69,12 +69,23 @@ class pdfreaderclass:
             os.remove(file.path)
         return("PDF clear successful!")
     
+    def loadPDFs(self):
+        #loadPDFs that are currently in the data folder
+        count = 0
+        try:
+            for file in os.scandir("data/"):
+                self.loadPDF(file.path[len("data/"):])
+                count += 1
+            return(f"Connecting QueryQuack!\nTotal {count} files preloaded into 'default' namespace")
+        except Exception:
+            return ("Error")
     def clearNamespace(self,parition_name = "default"):
         # Clear out vector parition
+        
         try:
             self.namespaceDict.pop(parition_name)
-        except KeyError as error:
-            return ("Error: Please recheck Namespace name. To see a list of namespace names: !listNamespaces")
+        except KeyError as err:
+            return("Error: Please recheck Namespace name. To see a list of namespace names: !listNamespaces")
         self.pinecone_index.delete(deleteAll=True, namespace=parition_name)
         return ("Namespace clear successful!")
     

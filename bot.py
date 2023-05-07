@@ -41,7 +41,7 @@ async def askPDF(ctx, *, args):
 @bot.command(name="clearPDFs", help = "!clearPDF - Will clear all the pdfs in storage. Warning! It will not clear the Namespace.")
 async def clearPDF(ctx):
     message = await ctx.send("Clearing PDF files. Please wait a moment!")
-    await message.edit(content =queryquack.clearPDFs())
+    await message.edit(content = queryquack.clearPDFs())
 
 @bot.command(name="clearNamespace", help = "!clearNamespace [namespace*] - Deletes and clears out the given namespace name")
 async def clearNamespace(ctx, arg):
@@ -61,6 +61,10 @@ async def setNamespace(ctx,arg1):
     queryquack.setCurrentNamespace(arg1)
     await ctx.send("Successfully set current Namespace to "+ arg1)
 
+@bot.command(name="quit", help = "!quit - Closes the bot")
+async def quit(ctx):
+    await bot.close()
+    
 @bot.event
 async def on_command_error(ctx, error, **kwargs):
     if isinstance(error, commands.errors.CommandNotFound):
@@ -75,11 +79,10 @@ async def on_disconnect():
     queryquack.clearPDFs()
     for k in list(queryquack.namespaceDict.keys()):
         queryquack.clearNamespace(k)
+    print("PDFs cleared and namespaces cleared.")
 
 @bot.event
 async def on_connect():
-    queryquack.clearPDFs()
-    for k in list(queryquack.namespaceDict.keys()):
-        queryquack.clearNamespace(k)
+    queryquack.loadPDFs()
 
 bot.run(TOKEN)
