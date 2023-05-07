@@ -14,7 +14,12 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(intents = intents, command_prefix = "!")
+# changing the headline in the help command
+help_command = commands.DefaultHelpCommand(
+    no_category = 'Commands'
+)
+
+bot = commands.Bot(intents = intents, command_prefix = "!", help_command=help_command)
 
 # instantiating the pdfreaderclass
 queryquack = pr.pdfreaderclass("cohere-pinecone")
@@ -84,5 +89,6 @@ async def on_disconnect():
 @bot.event
 async def on_connect():
     queryquack.loadPDFs()
+
 
 bot.run(TOKEN)
