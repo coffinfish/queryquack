@@ -81,7 +81,6 @@ class pdfreaderclass:
             return ("Error")
     def clearNamespace(self,parition_name = "default"):
         # Clear out vector parition
-        
         try:
             self.namespaceDict.pop(parition_name)
         except KeyError as err:

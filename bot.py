@@ -68,8 +68,29 @@ async def setNamespace(ctx,arg1):
 
 @bot.command(name="quit", help = "!quit - Closes the bot")
 async def quit(ctx):
+    await ctx.send("Quack! Goodbye!")
     await bot.close()
-    
+
+@bot.command(name="about", help = "!about - Learn how to get started.")
+async def about(ctx):
+    await ctx.send(
+"""**I'm QueryQuack!**
+
+__About Me:__
+Upload a PDF document then ask me anything about it! I'll do my best to answer. 
+I was created by Nina and Cindy using CoHere, LangChain, Pinecone, and discord.py for 
+2023 MetHacks!
+
+__How To Use:__
+In your message, type "!load" and attach a pdf file. If you want to keep your pdf files
+in separate Namespaces (think of Namespaces as folders), you can specify it by "!load [name of Namespace]".
+If there is no name, the Namespace will be called 'default'
+
+Then, after it has finished loading, you can type "!ask [prompt]" and I will respond! I will always refer to
+latest namespace that was referenced.
+
+!help for more available commands.""")
+
 @bot.event
 async def on_command_error(ctx, error, **kwargs):
     if isinstance(error, commands.errors.CommandNotFound):
@@ -84,7 +105,6 @@ async def on_disconnect():
     queryquack.clearPDFs()
     for k in list(queryquack.namespaceDict.keys()):
         queryquack.clearNamespace(k)
-    print("PDFs cleared and namespaces cleared.")
 
 @bot.event
 async def on_connect():
