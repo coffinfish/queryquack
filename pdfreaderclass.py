@@ -20,6 +20,7 @@ class pdfreaderclass:
             api_key=os.getenv('PINECONE_API_KEY'),
             environment=os.getenv('PINECONE_ENVIRONMENT')
             )
+        embeddings = CohereEmbeddings(model="multilingual-22-12", cohere_api_key=self.COHERE_API_KEY)
         self.pinecone_index = pinecone.Index(index_name)
         self.namespaceDict = {}
         self.currentNamespace = None
@@ -56,13 +57,13 @@ class pdfreaderclass:
         # Text embeddings and store the vector results in Pinecone vector database
         embeddings = CohereEmbeddings(model="multilingual-22-12", cohere_api_key=self.COHERE_API_KEY)
         Pinecone.from_texts([t.page_content for t in texts], embedding=embeddings, index_name=self.index_name, namespace=namespace)
-
+        
         # Get parition of vector database
         docsearch_namespace = Pinecone.from_existing_index(self.index_name, embedding=embeddings, namespace=namespace)
         
         self.namespaceDict.update({namespace : docsearch_namespace})
         self.currentNamespace = docsearch_namespace
-            
+    
     def clearPDFs(self):
         # Clear out data folder
         for file in os.scandir("data/"):
@@ -76,16 +77,19 @@ class pdfreaderclass:
             for file in os.scandir("data/"):
                 self.loadPDF(file.path[len("data/"):])
                 count += 1
+                print(f"uploaded {file.path[len('data/'):]}")
             return(f"Connecting QueryQuack!\nTotal {count} files preloaded into 'default' namespace")
-        except Exception:
-            return ("Error")
+        except Exception as e:
+            return (f"Error: {e}")
+        
     def clearNamespace(self,parition_name = "default"):
         # Clear out vector parition
         try:
-            self.namespaceDict.pop(parition_name)
+            self.namespaceDict.pop(parition_name)   
         except KeyError as err:
             return("Error: Please recheck Namespace name. To see a list of namespace names: !listNamespaces")
-        self.pinecone_index.delete(deleteAll=True, namespace=parition_name)
+        finally:
+            self.pinecone_index.delete(deleteAll=True, namespace=parition_name)
         return ("Namespace clear successful!")
     
     def search_docs(self,query):
@@ -98,3 +102,5 @@ class pdfreaderclass:
         docs = self.search_docs(user_input)
         answer = self.chain({"input_documents": docs, "human_input": user_input}, return_only_outputs=True)
         return answer
+
+        

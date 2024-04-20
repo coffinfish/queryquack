@@ -22,7 +22,7 @@ help_command = commands.DefaultHelpCommand(
 bot = commands.Bot(intents = intents, command_prefix = "!", help_command=help_command)
 
 # instantiating the pdfreaderclass
-queryquack = pr.pdfreaderclass("cohere-pinecone")
+queryquack = pr.pdfreaderclass("quackery")
 
 @bot.command(name="load", help = "!load [namespace] - Will load the PDF file that is attached to be queried in a namespace. QueryQuack will query PDFs in the same namespace, if no namespace is given, a new namespace will be generated or the latest namespace will be used.")
 async def getPDF(ctx, arg1 = "default"):
@@ -33,9 +33,10 @@ async def getPDF(ctx, arg1 = "default"):
     elif (attachments[0].content_type != "application/pdf"):
         await message.edit(content = "Unknown File Type! Please attach a pdf file")
     else:
-        await attachments[0].save(fp = f"./data/{attachments[0].filename}")
-        queryquack.loadPDF(attachments[0].filename, arg1)
-        await message.edit(content = "Successfully loaded!")
+        for i in range(len(attachments)):
+            await attachments[i].save(fp = f"./data/{attachments[i].filename}")
+            queryquack.loadPDF(attachments[i].filename, arg1)
+            await ctx.send(content = f"Successfully loaded: {attachments[i].filename}!")
 
 @bot.command(name="ask", help = "!ask [prompt]- Requires a pdf to be loaded beforehand.")
 async def askPDF(ctx, *, args):
@@ -100,15 +101,15 @@ async def on_command_error(ctx, error, **kwargs):
     else:
         await ctx.reply(error)
 
-@bot.event
-async def on_disconnect():
-    queryquack.clearPDFs()
-    for k in list(queryquack.namespaceDict.keys()):
-        queryquack.clearNamespace(k)
+# @bot.event
+# async def on_disconnect():
+#     queryquack.clearPDFs()
+#     for k in list(queryquack.namespaceDict.keys()):
+#         queryquack.clearNamespace(k)
 
-@bot.event
-async def on_connect():
-    queryquack.loadPDFs()
+# @bot.event
+# async def on_connect():
+#     print(queryquack.loadPDFs())
 
 
 bot.run(TOKEN)
