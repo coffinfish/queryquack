@@ -42,7 +42,34 @@ async def getPDF(ctx, arg1 = "default"):
 async def askPDF(ctx, *, args):
     message = await ctx.send("Fetching answer. Please wait a moment!")
     answer = queryquack.ask(args)
-    await message.edit(content = answer["output_text"])
+    output_text = answer["output_text"]
+
+    # Discord's message length limit
+    LIMIT = 2000
+
+    def split_text(text, limit):
+        """Splits text into chunks without breaking words."""
+        parts = []
+        while len(text) > limit:
+            # Find the last space within the limit
+            split_at = text.rfind(' ', 0, limit)
+            if split_at == -1:
+                # If no space is found, split at the limit (this should rarely happen with natural text)
+                split_at = limit
+            parts.append(text[:split_at])
+            text = text[split_at:].lstrip()  # Remove leading spaces in the next part
+        parts.append(text)
+        return parts
+
+    # Split the output text into manageable chunks
+    parts = split_text(output_text, LIMIT)
+
+    # Edit the initial message with the first part
+    await message.edit(content=parts[0])
+
+    # Send the remaining parts as new messages
+    for part in parts[1:]:
+        await ctx.send(part)
 
 @bot.command(name="clearPDFs", help = "!clearPDF - Will clear all the pdfs in storage. Warning! It will not clear the Namespace.")
 async def clearPDF(ctx):
