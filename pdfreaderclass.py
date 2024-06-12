@@ -22,7 +22,7 @@ class pdfreaderclass:
         # setting up variables
         self.index_name = index_name
         self.pinecone_index = pc.Index(index_name)
-        self.embeddings = CohereEmbeddings(model="embed-english-v2.0", cohere_api_key=self.COHERE_API_KEY)
+        self.embeddings = CohereEmbeddings(model="embed-english-v3.0", cohere_api_key=self.COHERE_API_KEY)
         
         # loading namespaces from index
         self.namespaceDict = {namespace: PineconeVectorStore.from_existing_index(self.index_name, embedding=self.embeddings, namespace=namespace) for namespace in list(self.pinecone_index.describe_index_stats().get("namespaces", {}).keys())}
